@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fbf7ef">
+  <meta name="description" content="بشرى قدوم نور الدين مخملجي">
+  <meta property="og:title" content="بشرى قدوم نور الدين مخملجي">
+  <meta property="og:description" content="الحمد لله على تمام النعمة، ونسأل الله أن يبارك فيه ويقرّ به أعين والديه.">
+  <meta property="og:image" content="images/hero.jpg">
+  <title>بشارة مولود — نور الدين مخملجي</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/site.css">
+  <script src="site-config.js"></script>
+  <script src="js/script.js" defer></script>
+</head>
+<body>
+  <div class="cover" id="cover">
+    <video class="cover__video" id="entrance" muted autoplay playsinline preload="auto" disablepictureinpicture poster="images/poster.jpg">
+      <source src="media/entrance.mp4" type="video/mp4">
+    </video>
+    <div class="cover__scrim" aria-hidden="true"></div>
+    <div class="cover__top"><p class="cover__kicker" id="coverKicker">بشرى سارّة</p></div>
+    <button class="cover__hit" id="grip" type="button" aria-label="ثبّت إصبعك حتى تنفتح البشارة"></button>
+    <div class="cover__bottom">
+      <p class="cover__cue" id="coverCue">مدّ إصبعك… واتركه</p>
+      <div class="prog" aria-hidden="true"><span class="prog__fill" id="progFill"></span></div>
+      <p class="cover__hint" id="coverHint" hidden>ثبّت إصبعك ولا ترفعه</p>
+      <button class="cover__btn" id="openBtn" type="button" hidden>افتح البشارة</button>
+    </div>
+  </div>
+
+  <main class="invite" id="invite" aria-hidden="true">
+    <div class="petals" id="petals" aria-hidden="true"></div>
+    <div class="heroShot">
+      <img id="heroImage" src="images/hero.jpg" alt="مولود بين أزهار الأقحوان" width="900" height="1600" fetchpriority="high">
+      <span class="heroShot__veil" aria-hidden="true"></span><span class="heroShot__melt" aria-hidden="true"></span>
+      <header class="heroShot__cap" id="heroCap">
+        <p class="hero__kicker" id="heroKicker">بشرى سارّة</p>
+        <h1 class="celebrant" id="celebrantName"></h1>
+        <p class="hero__greet" id="heroGreet"></p>
+        <p class="hero__english" id="englishName" lang="en" dir="ltr"></p>
+      </header>
+    </div>
+
+    <section class="section hero reveal" id="welcomeSection">
+      <div class="hero__rule" aria-hidden="true"><span></span><i>♡</i><span></span></div>
+      <p class="hero__verse" id="welcomeText"></p>
+    </section>
+
+    <section class="section cert reveal" id="certSection">
+      <div class="cert__card">
+        <span class="cert__seal" aria-hidden="true"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="21"></circle><circle cx="24" cy="24" r="16" class="cert__sealInner"></circle><text x="24" y="30" text-anchor="middle">♡</text></svg></span>
+        <h2 class="cert__title">بطاقة البشارة</h2>
+        <dl class="cert__grid" id="certGrid"></dl>
+      </div>
+    </section>
+
+    <section class="section photo reveal" id="photoSection">
+      <div class="photo__frame" id="fogWrap">
+        <img id="babyPhoto" alt="صورة المولود">
+        <canvas class="photo__fog" id="fogCanvas" role="img" aria-label="امسح الضباب بإصبعك لتظهر الصورة"></canvas>
+      </div>
+      <p class="photo__cap" id="photoCap">امسح الضباب بإصبعك</p>
+    </section>
+
+    <section class="section word reveal">
+      <h2 class="section__title">كلمة الأهل</h2>
+      <p class="word__text" id="familyMessage"></p>
+      <p class="familyNames" id="familyNames"></p>
+    </section>
+
+    <section class="section prayers reveal">
+      <h2 class="section__title">دعاء وبركة</h2>
+      <div class="prayerList" id="prayerList"></div>
+      <article class="hadithCard">
+        <p class="hadithCard__label">دعاء النبي ﷺ للمولود بالبركة</p>
+        <blockquote id="hadithText"></blockquote>
+        <a id="hadithSource" target="_blank" rel="noopener noreferrer"></a>
+      </article>
+    </section>
+
+    <section class="section wishes reveal">
+      <h2 class="section__title">كلمات المهنّئين ❁</h2>
+      <div class="wish-list" id="wishList"></div>
+    </section>
+
+    <section class="section rsvp reveal">
+      <div class="rsvp-card">
+        <h2>تهنئة للعائلة 🍼</h2>
+        <div class="orn-line" aria-hidden="true"><i></i><b>❁</b><i></i></div>
+        <p class="rsvp-sub">اكتبوا كلمة جميلة لنور الدين ووالديه</p>
+        <form id="wishForm">
+          <label for="guestName">الاسم الكريم</label>
+          <input id="guestName" name="name" maxlength="60" autocomplete="name" required placeholder="اسمك">
+          <label for="guestMessage">تهنئتكم</label>
+          <textarea id="guestMessage" name="message" maxlength="280" rows="3" required placeholder="اكتب تهنئتك هنا"></textarea>
+          <button class="send" type="submit">إضافة التهنئة</button>
+          <p class="formStatus" id="formStatus" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+
+    <footer class="section closing reveal">
+      <p class="closing__note" id="closingText"></p>
+      <div class="contact" id="contactBox" hidden>
+        <span class="contact__label">للتواصل والتهنئة</span>
+        <a class="contact__link" id="contactLink" target="_blank" rel="noopener noreferrer">واتساب</a>
+      </div>
+      <p class="closing__host" id="closingParents"></p>
+    </footer>
+  </main>
+</body>
+</html>

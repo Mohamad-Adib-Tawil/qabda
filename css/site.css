@@ -1,0 +1,55 @@
+.hero__english {
+  margin-top: 2px;
+  color: #426477;
+  font: 500 clamp(13px, 3.3vw, 16px)/1.6 "Tajawal", sans-serif;
+  text-shadow: 0 1px 12px rgba(251,247,239,.95);
+}
+
+.cover__hit { appearance: none; padding: 0; border: 0; background: transparent; }
+
+.familyNames { margin-top: 17px; color: var(--sky-dp); font-size: 15px; }
+.prayers { text-align: center; }
+.prayerList { display: grid; gap: 18px; }
+.prayerCard, .hadithCard {
+  padding: 24px 20px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: rgba(255,253,249,.84);
+  box-shadow: 0 14px 36px rgba(120,90,70,.08);
+}
+.prayerCard blockquote, .hadithCard blockquote {
+  color: var(--ink);
+  font: 700 clamp(21px, 6vw, 27px)/2 "Amiri", serif;
+}
+.prayerCard a, .hadithCard a { color: var(--sky-dp); font-size: 13px; text-decoration: none; }
+.hadithCard { margin-top: 20px; }
+.hadithCard__label { margin-bottom: 10px; color: var(--sky-dp); font-weight: 700; }
+.hadithCard blockquote { font-size: clamp(18px, 5vw, 22px); }
+.wish-list { display: grid; gap: 12px; }
+.wish { display: flex; align-items: flex-start; gap: 12px; padding: 14px; border-radius: 16px; background: rgba(255,253,249,.78); border: 1px solid var(--line); }
+.wish-av { flex: none; width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; color: white; font-family: "Amiri", serif; }
+.wish-body { min-width: 0; text-align: start; }
+.wish-name { font-weight: 700; color: var(--ink); }
+.wish-msg { color: var(--ink-sf); line-height: 1.75; }
+.rsvp { padding-top: 20px; }
+.rsvp-card { max-width: 440px; margin: 0 auto; padding: 26px 22px; border-radius: 22px; border: 1px solid var(--line); background: #fdfaf4; box-shadow: 0 24px 60px rgba(120,90,70,.14); text-align: center; }
+.rsvp-card h2 { color: var(--ink); font: 700 26px "Amiri", serif; }
+.orn-line { display: flex; justify-content: center; align-items: center; gap: 10px; color: var(--gold); }
+.orn-line i { width: 54px; height: 1px; background: var(--gold); }
+.rsvp-sub { color: var(--ink-sf); font-size: 14px; margin: 5px 0 16px; }
+.rsvp-card label { display: block; text-align: start; margin: 12px 0 5px; font-weight: 700; font-size: 13px; }
+.rsvp-card input, .rsvp-card textarea { width: 100%; padding: 11px 14px; border: 1.5px solid var(--line); border-radius: 12px; font: inherit; background: #fffdf9; color: var(--ink); }
+.rsvp-card textarea { resize: vertical; }
+.rsvp-card .send { width: 100%; margin-top: 16px; padding: 13px; border: 0; border-radius: 999px; background: var(--sky-dp); color: white; font: 700 16px "Tajawal", sans-serif; cursor: pointer; }
+.formStatus { min-height: 1.5em; color: var(--sky-dp); font-size: 13px; margin-top: 8px; }
+
+@media (min-width: 760px) {
+  .invite { box-shadow: 0 0 70px rgba(99,128,143,.12); }
+  .heroShot { height: min(82vh, 760px); }
+  .prayerList { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .prayerCard { display: flex; flex-direction: column; justify-content: space-between; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heroShot__cap, .petal { animation: none !important; }
+}

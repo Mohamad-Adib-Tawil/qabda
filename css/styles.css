@@ -1,0 +1,486 @@
+/* ============================================================
+   قالب qabda «قِبضة» — بشارة مولود جديد
+   الدخول فيديو حقيقي: كفٌّ صغير ينقبض بينما يثبّت الضيف إصبعه.
+   ألوان البشارة كلّها مسحوبة من ألوان الفيديو نفسه.
+   ============================================================ */
+
+:root {
+  --sky:     #7ec4e4;   /* أزرق سماء المشهد */
+  --sky-dp:  #3f88b0;
+  --sky-sf:  #dcedf6;
+  --cream:   #fbf7ef;
+  --gold:    #e0ac33;   /* أصفر الزهرات الصغيرة */
+  --gold-sf: #f9edcd;
+  --petal:   #f4cdb4;
+  --ink:     #2b4756;   /* رمادي أزرق عميق — لا أسود */
+  --ink-sf:  #7d97a6;
+  --line:    rgba(43, 71, 86, 0.13);
+
+  --font-display: "Amiri", Georgia, serif;
+  --font-body:    "Tajawal", system-ui, sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  color: var(--ink);
+  background-color: var(--cream);
+  background-image:
+    linear-gradient(180deg, var(--sky-sf) 0%, var(--cream) 38%, var(--cream) 100%);
+  background-attachment: fixed;
+  line-height: 1.9;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================================
+   شاشة الدخول
+   ============================================================ */
+.cover {
+  position: fixed; inset: 0; z-index: 60;
+  overflow: hidden;
+  background: #cfe6f2;
+  transition: opacity 1s ease, visibility 1s ease;
+}
+.cover.is-open { opacity: 0; visibility: hidden; }
+
+.cover__video {
+  position: absolute; inset: 0; z-index: 1;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  /* الفيديو مشهد كامل — لا إطار ولا حدود */
+  pointer-events: none;
+}
+
+/* تعتيم لطيف أعلى وأسفل ليقرأ النصّ فوق المشهد */
+.cover__scrim {
+  position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(20,50,66,.34) 0%, rgba(20,50,66,0) 26%),
+    linear-gradient(0deg,   rgba(20,50,66,.46) 0%, rgba(20,50,66,0) 32%);
+}
+
+.cover__top, .cover__bottom {
+  position: absolute; z-index: 5; left: 0; right: 0;
+  text-align: center;
+  pointer-events: none;          /* اللمس يمرّ للطبقة الحسّاسة تحته */
+  padding-inline: 24px;
+}
+.cover__top    { top: max(30px, env(safe-area-inset-top)); }
+/* --bars = ارتفاع أي شريط تحقنه المنصّة مثبّتاً بأسفل الشاشة (شريط الديمو،
+   «جرّب»، زرّ الموسيقى). بدونه يغطّي الشريط سطر «مدّ إصبعك» ويقصّه. */
+.cover__bottom { bottom: calc(max(38px, env(safe-area-inset-bottom) + 26px) + var(--bars, 0px)); }
+
+.cover__kicker {
+  font-family: var(--font-display);
+  font-size: clamp(17px, 4.8vw, 21px);
+  color: #fff;
+  /* لا letter-spacing على نصّ عربي — يفكّ اتصال الحروف فتبدو الكلمة مقطّعة.
+     المسافة بين الكلمات (word-spacing) آمنة وتعطي التنفّس نفسه. */
+  word-spacing: .12em;
+  text-shadow: 0 2px 14px rgba(16,44,58,.5);
+}
+
+.cover__cue {
+  font-size: clamp(15px, 4.4vw, 17.5px);
+  color: #fff;
+  text-shadow: 0 2px 12px rgba(16,44,58,.55);
+  transition: opacity .4s ease;
+}
+.cover.is-held .cover__cue { opacity: .45; }
+
+/* شريط التقدّم — رفيع وهادئ؛ البطل هو الكفّ لا الواجهة */
+.prog {
+  width: min(180px, 52vw); height: 2px;
+  margin: 14px auto 0;
+  border-radius: 2px;
+  background: rgba(255,255,255,.3);
+  overflow: hidden;
+  opacity: 0; transition: opacity .35s ease;
+}
+.cover.is-held .prog { opacity: 1; }
+.prog__fill {
+  display: block; width: 0; height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #fff, var(--gold));
+  box-shadow: 0 0 10px rgba(224,172,51,.8);
+}
+.prog__fill.is-resetting { transition: width .45s cubic-bezier(.4,0,.2,1); }
+
+.cover__hint {
+  margin-top: 12px; font-size: 14px; font-weight: 500; color: #ffeab4;
+  text-shadow: 0 2px 10px rgba(16,44,58,.7);
+  animation: fadeUp .45s ease both;
+}
+/* أثناء الضغط: نبض خفيف يشدّ الانتباه إلى «استمرّ» بلا إزعاج */
+.cover__hint.is-urgent {
+  color: #fff;
+  animation: fadeUp .45s ease both, hintPulse 1.5s ease-in-out .45s infinite;
+}
+@keyframes hintPulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: .55; }
+}
+.cover__btn {
+  pointer-events: auto;
+  margin-top: 16px;
+  font-family: var(--font-display);
+  font-size: 16px; color: var(--ink);
+  background: rgba(255,255,255,.92);
+  border: 0; border-radius: 999px;
+  padding: 10px 30px; cursor: pointer;
+  box-shadow: 0 6px 24px rgba(16,44,58,.24);
+  animation: fadeUp .6s ease both;
+}
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* الطبقة الحسّاسة: الشاشة كلّها هدف للّمس */
+.cover__hit {
+  position: absolute; inset: 0; z-index: 4;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;            /* التثبيت لا يتحوّل إلى تمرير */
+  user-select: none; -webkit-user-select: none;
+}
+.cover__hit:focus-visible { outline: 2px solid #fff; outline-offset: -6px; }
+
+/* وميض الاكتمال: المشهد يغمره النور ثم تُفتح البشارة */
+.cover::after {
+  content: ""; position: absolute; inset: 0; z-index: 6;
+  background: #fff; opacity: 0; pointer-events: none;
+}
+.cover.is-flash::after { animation: flashOut 1.15s ease forwards; }
+@keyframes flashOut { 0% { opacity: 0; } 34% { opacity: .92; } 100% { opacity: 0; } }
+
+/* ============================================================
+   البشارة
+   ============================================================ */
+.invite {
+  position: relative;
+  width: 100%;                 /* لازم — بدونه ينقاس على أعرض محتوى فيضيق بالموبايل */
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 0 22px calc(80px + var(--bars, 0px));
+  z-index: 2;
+}
+
+/* بتلات تتساقط بهدوء — امتداد لتساقط بتلات الفيديو */
+.petals { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 1; }
+.petal {
+  position: absolute; top: -24px;
+  width: 10px; height: 7px;
+  border-radius: 60% 40% 55% 45%;
+  opacity: 0;
+  animation: petalFall linear infinite;
+}
+@keyframes petalFall {
+  0%   { opacity: 0;   transform: translateY(0) rotate(0deg); }
+  10%  { opacity: .75; }
+  90%  { opacity: .45; }
+  100% { opacity: 0;   transform: translateY(104vh) rotate(320deg); }
+}
+
+.section { position: relative; padding: 56px 0; }
+.reveal { opacity: 0; transform: translateY(18px); transition: opacity .9s ease, transform .9s ease; }
+.reveal.is-visible { opacity: 1; transform: none; }
+
+.section__title {
+  font-family: var(--font-display);
+  font-size: clamp(21px, 5.6vw, 26px);
+  font-weight: 700;
+  color: var(--ink);
+  text-align: center;
+  margin-bottom: 24px;
+}
+.section__title::after {
+  content: ""; display: block;
+  width: 40px; height: 1.5px; border-radius: 2px;
+  background: var(--gold);
+  margin: 12px auto 0;
+}
+
+/* ---- الهيرو: صورة كاملة العرض ---- */
+.heroShot {
+  position: relative;
+  /* تكسر حشوة .invite لتصل حافّتَي الشاشة */
+  margin-inline: -22px;
+  height: min(76vh, 620px);
+  min-height: 420px;
+  overflow: hidden;
+}
+.heroShot img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: 50% 42%;      /* يُبقي الرأس في الكادر مهما تغيّرت النسبة */
+  display: block;
+}
+/* الذوبان: أسفل الصورة يتحوّل إلى لون الصفحة فتتّصل بالمحتوى بلا حافّة */
+.heroShot__melt {
+  position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(180deg,
+    rgba(251,247,239,0)   0%,
+    rgba(251,247,239,0)   58%,
+    rgba(251,247,239,.7)  82%,
+    var(--cream)          98%);
+}
+/* حجاب ضوئي خفيف أعلى الصورة يضمن قراءة الاسم مهما اختلفت صورة الزبون */
+.heroShot__veil {
+  position: absolute; inset-inline: 0; top: 0; height: 52%;
+  pointer-events: none;
+  background: linear-gradient(180deg,
+    rgba(255,253,248,.58) 0%,
+    rgba(255,253,248,.26) 48%,
+    rgba(255,253,248,0)   100%);
+}
+
+/* اسم المولود في أعلى الصورة */
+.heroShot__cap {
+  position: absolute; inset-inline: 0; top: 0; z-index: 2;
+  padding: clamp(24px, 6.5vh, 52px) 22px 0;
+  text-align: center;
+}
+
+/* ---- ما تحت الصورة ---- */
+.hero { padding-top: 34px; text-align: center; }
+.hero__kicker {
+  font-size: 13px; color: var(--sky-dp);
+  word-spacing: .3em;          /* لا letter-spacing: يقطّع اتصال الحروف العربية */
+  /* هالة بلون الصفحة: يقع هذا السطر في منطقة نصف مذابة فوق الصورة */
+  text-shadow: 0 1px 10px rgba(251,247,239,.95), 0 0 3px rgba(251,247,239,.9);
+}
+.celebrant {
+  font-family: var(--font-display);
+  font-size: clamp(46px, 15vw, 82px);
+  font-weight: 700; line-height: 1.3;
+  color: var(--ink);
+  margin: 12px 0 8px;
+  /* الكشف بمسح من اليمين — لا تقسيم للحروف كي لا ينكسر اتصال العربية */
+  clip-path: inset(0 0 0 100%);
+}
+.heroShot__cap.is-in .celebrant,
+.celebrant.is-written { animation: wipeIn 1.35s cubic-bezier(.22,.61,.36,1) .4s forwards; }
+@keyframes wipeIn { to { clip-path: inset(0 0 0 0); } }
+
+/* ---- ظهور متدرّج: البشرى ثم الاسم ثم الترحيب ---- */
+.heroShot__cap .hero__kicker,
+.heroShot__cap .hero__greet { opacity: 0; }
+.heroShot__cap.is-in .hero__kicker { animation: riseIn .95s cubic-bezier(.22,.61,.36,1) .15s both; }
+.heroShot__cap.is-in .hero__greet  { animation: riseIn .95s cubic-bezier(.22,.61,.36,1) 1.5s both; }
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(14px); filter: blur(4px); }
+  to   { opacity: 1; transform: none;             filter: blur(0); }
+}
+
+/* ---- لمعة ذهبية تمرّ على الاسم كل بضع ثوانٍ ----
+   تُلوَّن الحروف من تدرّج متحرّك، لا تُقسَّم — فاتصال العربية سليم.
+   محميّة بـ@supports لأن إخفاء لون النصّ بلا دعم القصّ يجعله غير مرئي. */
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .heroShot__cap.is-in .celebrant,
+  .celebrant.is-written {
+    background-image: linear-gradient(105deg,
+      var(--ink) 44%, #d9b45f 50%, var(--ink) 56%);
+    background-size: 260% 100%;
+    /* المدى الآمن الوحيد هو ٠٪–١٠٠٪: خارجه ينزاح التدرّج عن النصّ، ولأن لون
+       النصّ شفّاف يصبح الاسم غير مرئي كلّياً. داخل هذا المدى يبقى مغطّى دائماً
+       مهما توقّفت الحركة. */
+    background-position: 0% 0;
+    background-repeat: no-repeat;
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent; color: transparent;
+    animation: wipeIn 1.35s cubic-bezier(.22,.61,.36,1) .4s forwards,
+               nameShine 7s ease-in-out 2.4s infinite;
+  }
+}
+@keyframes nameShine {
+  0%        { background-position: 0% 0; }
+  26%, 100% { background-position: 100% 0; }
+}
+
+/* ضمان: لو لم تعمل حركات CSS أصلاً (تبويب موقوف، اقتصاد طاقة) لبقي الاسم
+   مقصوصاً كلّياً والبشرى شفّافة. يضعها السكربت إن رصد أنها لم تظهر. */
+.heroShot__cap.is-settled .hero__kicker,
+.heroShot__cap.is-settled .hero__greet { animation: none; opacity: 1; }
+.heroShot__cap.is-settled .celebrant {
+  animation: none;
+  clip-path: none;
+  background-image: none;
+  -webkit-text-fill-color: var(--ink); color: var(--ink);
+}
+
+.hero__greet { font-size: clamp(16px, 4.6vw, 19px); color: var(--sky-dp); font-weight: 500; }
+.hero__rule { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 22px auto 16px; max-width: 220px; }
+.hero__rule span { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--line), transparent); }
+.hero__rule i { color: var(--gold); font-style: normal; font-size: 15px; }
+.hero__verse { color: var(--ink-sf); font-size: 15.5px; }
+
+/* ---- بطاقة الشهادة ---- */
+.cert__card {
+  position: relative;
+  background: rgba(255,255,255,.72);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,.9);
+  border-radius: 24px;
+  padding: 42px 22px 32px;
+  box-shadow: 0 14px 44px rgba(43,71,86,.10);
+}
+.cert__seal {
+  position: absolute; top: -23px; left: 50%; transform: translateX(-50%);
+  width: 48px; height: 48px; display: grid; place-items: center;
+  background: var(--cream); border-radius: 50%;
+}
+.cert__seal svg { width: 46px; height: 46px; }
+.cert__seal circle { fill: none; stroke: var(--gold); stroke-width: 1.3; }
+.cert__sealInner { stroke-dasharray: 3 4; opacity: .65; }
+.cert__seal text { fill: var(--gold); font-size: 16px; }
+
+.cert__title {
+  font-family: var(--font-display);
+  font-size: 17px; font-weight: 400;
+  text-align: center; color: var(--ink-sf);
+  word-spacing: .18em; margin-bottom: 24px;
+}
+.cert__grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px 14px; }
+.cert__grid > div { text-align: center; }
+.cert__grid > div:only-child { grid-column: 1 / -1; }
+.cert__grid dt { font-size: 12.5px; color: var(--ink-sf); }
+.cert__grid dd {
+  font-family: var(--font-display);
+  font-size: clamp(21px, 6.2vw, 27px);
+  /* وزن عادي لا عريض: أميري العريض يضغط «فجراً» على نفسها ويثقل البطاقة */
+  font-weight: 400; color: var(--ink); line-height: 1.6;
+}
+.cert__grid dd .u { font-size: .58em; font-weight: 400; color: var(--ink-sf); margin-inline-start: 4px; }
+
+/* ---- أول صورة ---- */
+.photo { text-align: center; }
+.photo__frame {
+  position: relative;            /* مرجع طبقة الضباب — بدونه تتمدّد على القسم كلّه */
+  width: min(100%, 330px); margin: 0 auto;
+  aspect-ratio: 4 / 5; border-radius: 24px; overflow: hidden;
+  border: 7px solid #fff;
+  box-shadow: 0 16px 46px rgba(43,71,86,.16);
+  background: var(--sky-sf);
+}
+.photo__frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.photo__cap { margin-top: 13px; font-size: 14px; color: var(--ink-sf); transition: opacity .5s ease; }
+.photo__cap.is-dim { opacity: .35; }
+
+/* المرآة المضبّبة فوق الصورة — تُمسح بالإصبع */
+.photo__fog {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  display: block;
+  cursor: grab;
+  /* pan-y يبقي التمرير العمودي شغّالاً: المسح الأفقي يكشف، والسحب العمودي يمرّر
+     الصفحة — فلا يعلق الضيف داخل الصورة وهو يحاول ينزل */
+  touch-action: pan-y;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity .8s ease;
+}
+.photo__fog:active { cursor: grabbing; }
+.photo__fog.is-gone { opacity: 0; pointer-events: none; }
+
+/* ---- كلمة الأهل ---- */
+.word { text-align: center; }
+.word__text {
+  font-size: clamp(15px, 4.3vw, 16.5px);
+  color: var(--ink); line-height: 2.1;
+  max-width: 52ch; margin: 0 auto;
+}
+
+/* ---- الحفل ---- */
+.when { text-align: center; }
+.countdown { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.cd__cell {
+  min-width: 68px; padding: 13px 8px;
+  background: rgba(255,255,255,.72); border: 1px solid rgba(255,255,255,.9);
+  border-radius: 16px; box-shadow: 0 6px 20px rgba(43,71,86,.07);
+}
+.cd__num { display: block; font-family: var(--font-display); font-weight: 700; font-size: 25px; color: var(--sky-dp); }
+.cd__lbl { display: block; font-size: 12px; color: var(--ink-sf); }
+.when__arrived { font-family: var(--font-display); font-size: 20px; color: var(--sky-dp); }
+
+.timeline { list-style: none; max-width: 380px; margin: 0 auto; }
+.timeline__item {
+  display: grid; grid-template-columns: 10px 84px 1fr; align-items: center; gap: 12px;
+  padding: 14px 0; border-bottom: 1px dashed var(--line);
+}
+.timeline__item:last-child { border-bottom: 0; }
+.timeline__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); }
+.timeline__time { font-size: 13.5px; color: var(--ink-sf); }
+.timeline__title { font-size: 15px; }
+
+.notes__list { list-style: none; max-width: 400px; margin: 0 auto; }
+.notes__item { display: flex; gap: 10px; align-items: flex-start; padding: 9px 0; font-size: 15px; }
+.notes__mark { color: var(--gold); flex: none; }
+
+.venue { text-align: center; }
+.when__date { font-family: var(--font-display); font-weight: 700; font-size: 20px; color: var(--ink); }
+.when__time { color: var(--ink-sf); font-size: 15px; margin-bottom: 14px; }
+
+/* صورة القاعة التي يرفعها الزبون — مطويّة تماماً ما لم تصل صورة، فبطاقة
+   المكان تبقى كما هي بلا فراغ ولا إطار فارغ. الحدّ والظلّ والهامش على
+   .has-img وحدها. الإطار الأبيض والانحناء مأخوذان من .photo__frame كي
+   تبدو الصورتان من عائلة واحدة. الفجوة فوقها تأتي من هامش .when__time. */
+.venue__photo {
+  height: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  border-radius: 22px;
+  background: center/cover no-repeat;
+  transition: height .55s ease;
+}
+.venue__photo.has-img {
+  height: 190px;
+  max-width: 420px;
+  margin: 0 auto 18px;
+  border: 5px solid #fff;
+  box-shadow: 0 12px 34px rgba(43,71,86,.16);
+}
+
+.venue__name { font-family: var(--font-display); font-weight: 700; font-size: 19px; color: var(--sky-dp); }
+.venue__addr { color: var(--ink-sf); font-size: 14.5px; margin-bottom: 20px; }
+.venue__btn {
+  display: inline-block; text-decoration: none;
+  font-size: 15px; color: #fff; background: var(--sky-dp);
+  border-radius: 999px; padding: 10px 28px;
+  box-shadow: 0 8px 22px rgba(63,136,176,.28);
+}
+
+/* ---- الخاتمة ---- */
+.closing { text-align: center; padding-bottom: 26px; }
+.closing__note { font-family: var(--font-display); font-weight: 700; font-size: clamp(19px, 5.2vw, 23px); color: var(--ink); }
+.closing__hashtag { color: var(--sky-dp); font-size: 15px; margin-top: 10px; }
+.contact { margin: 24px 0 14px; }
+.contact__label { display: block; font-size: 13px; color: var(--ink-sf); margin-bottom: 4px; }
+.contact__link { color: var(--sky-dp); font-size: 16px; font-weight: 500; text-decoration: none; }
+.closing__host { font-size: 14px; color: var(--ink-sf); }
+
+/* ============================================================
+   شاشات ضيّقة
+   ============================================================ */
+@media (max-width: 380px) {
+  .cert__grid { gap: 18px 10px; }
+  .cd__cell { min-width: 60px; }
+  .footSvg { height: 5.6cm; }
+}
+
+/* ============================================================
+   تقليل الحركة
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .petal { animation: none !important; display: none; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .celebrant {
+    clip-path: none; animation: none !important;
+    background-image: none;
+    -webkit-text-fill-color: var(--ink); color: var(--ink);
+  }
+  .heroShot__cap .hero__kicker,
+  .heroShot__cap .hero__greet { opacity: 1; animation: none !important; }
+  .cover__hint.is-urgent { animation: none !important; }
+  .venue__photo { transition: none; }
+  .cover.is-flash::after { animation-duration: .35s; }
+}
