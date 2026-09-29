@@ -152,6 +152,10 @@
     window.setTimeout(() => { if (!done) button.hidden = false; }, 10000);
     window.setTimeout(() => { if (!done && hint.hidden) hint.hidden = false; }, 5500);
     video.addEventListener("error", () => { button.hidden = false; });
+    video.addEventListener("timeupdate", () => {
+      if (active || done || !Number.isFinite(video.duration) || video.duration <= 0) return;
+      if (video.currentTime >= Math.min(2.4, video.duration * .34)) video.currentTime = 0;
+    });
     video.play().catch(() => { /* الملصق يبقى ظاهراً إن منع المتصفح التشغيل التلقائي */ });
   }
 
